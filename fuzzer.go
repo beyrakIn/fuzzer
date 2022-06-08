@@ -21,6 +21,9 @@ func Fuzzer(domain, wordlist, output string) {
 	defer file.Close()
 
 	if output != "" {
+		// create file
+		createFile(output)
+		// clear file
 		clearFile(output)
 	}
 
@@ -110,6 +113,19 @@ func clearFile(file string) {
 	}
 	// clear file
 	f.Truncate(0)
+	// close file
+	defer f.Close()
+}
+
+func createFile(file string) {
+	// create file
+	f, err := os.Create(file)
+	if err != nil {
+		// print error
+		color.Red("[!] Error: %s", err)
+		// exit
+		os.Exit(0)
+	}
 	// close file
 	defer f.Close()
 }
