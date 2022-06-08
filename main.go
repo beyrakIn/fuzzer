@@ -60,16 +60,17 @@ func printUsage() {
 }
 
 // function that make url with domain start with https:// and end with /
-func makeUrl(domain string) string {
+func makeUrl(domain string) (url string) {
+	url = domain
 	// check if domain has https://
 	if !strings.HasPrefix(domain, "https://") {
-		domain = "https://" + domain
+		url = "https://" + domain
 	}
 	// check if domain has /
 	if !strings.HasSuffix(domain, "/") {
-		domain = domain + "/"
+		url = url + "/"
 	}
-	return domain
+	return
 }
 
 func help() {
