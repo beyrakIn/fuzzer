@@ -3,13 +3,14 @@ package main
 import (
 	"github.com/fatih/color"
 	"os"
+	"strings"
 )
 
 func main() {
 	// read parameters
 	domain, wordlist, output := readParameters()
 	// fuzzer
-	Fuzzer(domain, wordlist, output)
+	Fuzzer(makeUrl(domain), wordlist, output)
 }
 
 // function read these parameters from cl -u https://google.com -w wordlist.txt -o output.txt
@@ -41,7 +42,8 @@ func readParameters() (string, string, string) {
 func printUsage() {
 	help()
 	// print usage
-	color.Red("[!] Usage: %s -u https://google.com -w wordlist.txt -o output.txt", os.Args[0])
+	color.Green("[!] Usage: %s -u https://google.com -w wordlist.txt -o output.txt", os.Args[0])
+	color.Green("[!] Usage: %s -u google.com -w wordlist.txt -o output.txt", os.Args[0])
 	// -u url is required yellow color
 	color.Yellow("[!] -u url is required")
 	// -w wordlist is required yellow color
@@ -55,6 +57,19 @@ func printUsage() {
 	// exit
 	os.Exit(0)
 
+}
+
+// function that make url with domain start with https:// and end with /
+func makeUrl(domain string) string {
+	// check if domain has https://
+	if !strings.HasPrefix(domain, "https://") {
+		domain = "https://" + domain
+	}
+	// check if domain has /
+	if !strings.HasSuffix(domain, "/") {
+		domain = domain + "/"
+	}
+	return domain
 }
 
 func help() {
