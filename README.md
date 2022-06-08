@@ -1,15 +1,20 @@
 # Fuzzer
 
 ``Tool help menu``
-```shell
-[!] Usage: ./fuzzer -u https://google.com/ -w wordlist.txt -o output.txt
+```markdown
+.__           .__          
+|  |__   ____ |  | ______  
+|  |  \_/ __ \|  | \____ \ 
+|   Y  \  ___/|  |_|  |_> >
+|___|  /\___  >____/   __/ 
+     \/     \/     |__|    
+[!] Usage: ./fuzzer -u https://google.com -w wordlist.txt -o output.txt
 [!] Usage: ./fuzzer -u google.com -w wordlist.txt -o output.txt
-[!] Usage: -u https://google.com
-[!] Usage: -w wordlist.txt
-[-] Usage: -o output.txt
-[+] Help: -h
+[!] -u url is required
+[!] -w wordlist is required
+[!] -o output is optional
+[!] -h help
 [+] Thanks for using this tool
-
 ```
 
 
