@@ -2,7 +2,8 @@
 
 ``Tool help menu``
 ```shell
-[!] Usage: ./fuzzer -u https://google.com -w wordlist.txt -o output.txt
+[!] Usage: ./fuzzer -u https://google.com/ -w wordlist.txt -o output.txt
+[!] Usage: ./fuzzer -u google.com -w wordlist.txt -o output.txt
 [!] Usage: -u https://google.com
 [!] Usage: -w wordlist.txt
 [-] Usage: -o output.txt
