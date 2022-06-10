@@ -7,45 +7,72 @@ import (
 	"os"
 )
 
+var (
+	//wg         = sync.WaitGroup{}
+	outputFile *os.File
+)
+
 // Fuzzer is a function that fuzzes the given domain with the given wordlist
 func Fuzzer(domain, wordlist, output string) {
 	// open wordlist
 	file, err := os.Open(wordlist)
 	if err != nil {
-		// print error
 		color.Red("[!] Error: %s", err)
-		// exit
 		os.Exit(0)
 	}
 	// close file
-	defer file.Close()
+	defer closeFile(file)
 
+	// create and open output file if it is not nil
 	if output != "" {
 		// create file
 		createFile(output)
 		// clear file
 		clearFile(output)
+		// open file
+		outputFile = openFile(output)
 	}
 
 	// read wordlist
 	scanner := bufio.NewScanner(file)
 	// loop through wordlist
 	for scanner.Scan() {
-		// get word
-		word := scanner.Text()
-		// create url
-		url := domain + word
-		// check if url is valid
-		if isValid(url) {
-			// print valid
-			color.Green("[+] %s", url)
-			// write url to output file
+		//wg.Add(1)
 
-			if output != "" {
-				writeToFile(url, output)
+		word := scanner.Text()
+
+		func(word string) {
+			url := domain + word
+
+			// check if url is valid
+			if isValid(url) {
+				color.Green("[+] %s", url)
+
+				// write url to output file
+				if output != "" {
+					_, err := writeToFile(url, outputFile)
+					if err != nil {
+						color.Red("[!] Error: %s", err)
+						os.Exit(0)
+					}
+				}
 			}
-		}
+			//wg.Done()
+		}(word)
 	}
+	//wg.Wait()
+
+	// close output file
+	if output != "" {
+		f, err := writeToFile("", outputFile)
+		if err != nil {
+			color.Red("[!] Error: %s", err)
+			os.Exit(0)
+		}
+		// close file
+		closeFile(f)
+	}
+
 }
 
 // function check if url is valid
@@ -57,7 +84,6 @@ func isValid(url string) bool {
 	if err != nil {
 		// print error
 		color.Red("[!] Error: %s", err)
-		// exit
 		os.Exit(0)
 	}
 	// set request header
@@ -67,65 +93,68 @@ func isValid(url string) bool {
 	if err != nil {
 		// print error
 		color.Red("[!] Error: %s", err)
-		// exit
 		os.Exit(0)
 	}
 	// check if response status code is 200
 	if resp.StatusCode == 200 {
-		// return true
 		return true
 	}
-	// return false
+
 	return false
 }
 
-// writeToFile is a function that writes the given url to the given file
-func writeToFile(url, output string) {
-	// open file
-	file, err := os.OpenFile(output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+// writeToFile is a function that writes the given line to the given file
+func writeToFile(line string, file *os.File) (*os.File, error) {
+	// append line to file
+	_, err := file.WriteString(line + "\n")
 	if err != nil {
-		// print error
-		color.Red("[!] Error: %s", err)
-		// exit
-		os.Exit(0)
+		return nil, err
 	}
-	// write url to file
-	_, err = file.WriteString(url + "\n")
-	if err != nil {
-		// print error
-		color.Red("[!] Error: %s", err)
-		// exit
-		os.Exit(0)
-	}
-	// close file
-	defer file.Close()
+
+	return file, nil
 }
 
-// function clear file
+// openFile is a function that opens the given file and returns a pointer to the file
+func openFile(file string) *os.File {
+	// open file
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		// print error
+		color.Red("[!] Error: %s", err)
+		os.Exit(0)
+	}
+
+	return f
+}
+
+// closeFile is a function that closes the given file and handles errors
+func closeFile(file *os.File) {
+	// close file
+	err := file.Close()
+	if err != nil {
+		color.Red("[!] Error: %s", err)
+	}
+}
+
+// clearFile is a function that clears the given file
 func clearFile(file string) {
 	// open file
 	f, err := os.OpenFile(file, os.O_RDWR, 0644)
 	if err != nil {
-		// print error
 		color.Red("[!] Error: %s", err)
-		// exit
 		os.Exit(0)
 	}
 	// clear file
 	f.Truncate(0)
-	// close file
-	defer f.Close()
+	closeFile(f)
 }
 
 func createFile(file string) {
 	// create file
 	f, err := os.Create(file)
 	if err != nil {
-		// print error
 		color.Red("[!] Error: %s", err)
-		// exit
 		os.Exit(0)
 	}
-	// close file
-	defer f.Close()
+	closeFile(f)
 }
